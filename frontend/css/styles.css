@@ -1,3 +1,25 @@
+:root {
+    --primary-normal: #2A7FFF;
+    --primary-hover: #1F6FE0;
+    --primary-light: #EAF2FF;
+
+    --success-normal: #2ECC71;
+    --success-hover: #27AE60;
+    --success-light: #EAFAF1;
+
+    --danger-normal: #E74C3C;
+    --danger-hover: #C0392B;
+    --danger-light: #FDEDEC;
+
+    --warning-normal: #F39C12;
+    --warning-hover: #D68910;
+    --warning-light: #FEF5E7;
+
+    --info-normal: #17A2B8;
+    --info-hover: #138496;
+    --info-light: #E8F8FA;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -44,10 +66,12 @@ body {
     width: 160px;
     height: auto;
     object-fit: contain;
+    box-shadow: none;
+    filter: none;
 }
 
 .welcome-title {
-    color: #17A2B8; /* Color Info Normal de la paleta */
+    color: var(--info-normal); /* Color Info Normal de la paleta */
     font-size: 32px;
     font-weight: 500;
     line-height: 1.2;
@@ -55,13 +79,13 @@ body {
 }
 
 .login-prompt p {
-    color: #17A2B8; 
+    color: var(--info-normal); 
     font-size: 14px;
     margin-bottom: 5px;
 }
 
 .login-link {
-    color: #17A2B8;
+    color: var(--info-normal);
     font-weight: 700;
     text-decoration: none;
     font-size: 15px;
@@ -71,11 +95,11 @@ body {
 }
 
 .login-link:hover {
-    color: #138496; /* Color Info Hover */
+    color: var(--info-hover); /* Color Info Hover */
 }
 
 .btn-solid {
-    background: #17A2B8; /* Color Info Normal */
+    background: var(--info-normal); /* Color Info Normal */
     color: white;
     border: none;
     padding: 12px 30px;
@@ -83,14 +107,14 @@ body {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(23, 162, 184, 0.3);
+    box-shadow: 0 4px 6px #17A2B84D;
     transition: all 0.3s ease;
 }
 
 .btn-solid:hover {
-    background: #138496; /* Color Info Hover */
+    background: var(--info-hover); /* Color Info Hover */
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(19, 132, 150, 0.4);
+    box-shadow: 0 6px 12px #13849666;
 }
 
 .login-btn {
@@ -114,11 +138,11 @@ body {
     padding: 50px 40px;
     border-radius: 12px;
     box-shadow: 0 4px 25px rgba(0,0,0,0.1);
-    border: 1px solid #E8F8FA; /* Color Info Light */
+    border: 1px solid var(--info-light); /* Color Info Light */
 }
 
 .form-title {
-    color: #17A2B8; /* Color Info Normal */
+    color: var(--info-normal); /* Color Info Normal */
     font-size: 26px;
     font-weight: 700;
     text-align: center;
@@ -132,7 +156,7 @@ body {
 .input-group input {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid #17A2B8; /* Color Info Normal */
+    border: 1px solid var(--info-normal); /* Color Info Normal */
     border-radius: 6px;
     font-size: 13px;
     color: #333;
@@ -141,13 +165,69 @@ body {
 }
 
 .input-group input::placeholder {
-    color: #17A2B8; /* Color Info Normal */
+    color: var(--info-normal); /* Color Info Normal */
     opacity: 0.8;
 }
 
 .input-group input:focus {
-    border-color: #138496; /* Color Info Hover */
-    box-shadow: 0 0 0 3px #E8F8FA; /* Color Info Light para el glow */
+    border-color: var(--info-hover); /* Color Info Hover */
+    box-shadow: 0 0 0 3px var(--info-light); /* Color Info Light para el glow */
+}
+
+/* Radio Buttons and Forgot Password */
+.role-group {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 15px;
+    margin-bottom: 30px;
+}
+
+.custom-radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--info-normal);
+    font-weight: 500;
+}
+
+.custom-radio input[type="radio"] {
+    display: none;
+}
+
+.radio-mark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--info-normal);
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.custom-radio input[type="radio"]:checked + .radio-mark {
+    background-color: var(--info-normal);
+    border-color: var(--info-normal);
+}
+
+.forgot-password {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.forgot-password a {
+    color: var(--info-normal);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.forgot-password a:hover {
+    color: var(--info-hover);
 }
 
 .submit-container {

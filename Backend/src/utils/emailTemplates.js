@@ -32,7 +32,6 @@ const getBaseTemplate = (content, title) => {
 </html>
     `;
 };
-
 const getWelcomeTemplate = (nombre) => {
     const content = `
 <h2>¡Hola ${nombre}!</h2>

@@ -75,24 +75,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Obtener los datos del localStorage
-    const usuarioData = localStorage.getItem('usuario');
-    const token = localStorage.getItem('token');
-
-    // 2. Seguridad: Si no hay token o datos, mandar al login
-    if (!usuarioData || !token) {
-        window.location.href = '../../login.html';
-        return;
-    }
-
-    // 3. Convertir los datos de texto a un objeto real
-    const usuario = JSON.parse(usuarioData);
-
-    // 4. Mostrar el nombre en el sidebar
-    const nameDisplay = document.getElementById('userNameDisplay');
-    if (nameDisplay && usuario.nombre) {
-        nameDisplay.textContent = usuario.nombre;
-    }
-});

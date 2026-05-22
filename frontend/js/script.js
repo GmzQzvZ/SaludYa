@@ -161,4 +161,61 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.clear(); // Borra token y datos de usuario
         });
     }
+
+    // --- LÓGICA DE CAMBIO DE CONTRASEÑA (RESETEO REAL) ---
+    const recoveryForm = document.getElementById('recoveryForm');
+    if (recoveryForm) {
+        recoveryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            // 1. Validar que las contraseñas coincidan
+            if (newPassword !== confirmPassword) {
+                AlertSystem.error('Error', 'Las contraseñas no coinciden. Intenta de nuevo.');
+                return;
+            }
+
+            // 2. Extraer el token de la URL (ej: ?token=abcd-1234)
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
+                AlertSystem.error('Error', 'No se encontró un token de recuperación válido.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Actualizando...';
+
+            try {
+                // 3. Enviar la petición al nuevo Endpoint
+                const response = await fetch('http://localhost:3000/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, newPassword })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Limpiar la URL por seguridad (quitar el token visible)
+                    window.history.replaceState({}, document.title, window.location.pathname);
+
+                    AlertSystem.success('¡Éxito!', 'Tu contraseña se ha actualizado correctamente.', () => {
+                        window.location.href = 'login.html'; // Redirigir al login
+                    });
+                } else {
+                    AlertSystem.error('Error', data.message);
+                }
+            } catch (error) {
+                AlertSystem.error('Error', 'Problema al conectar con el servidor.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirmar';
+            }
+        });
+    }
 });

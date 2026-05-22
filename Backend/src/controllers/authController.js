@@ -125,3 +125,42 @@ exports.forgotPassword = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
 };
+
+// --- NUEVA FUNCIÓN: CAMBIAR CONTRASEÑA ---
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({ message: 'El token y la nueva contraseña son requeridos.' });
+        }
+
+        // 1. Buscar al usuario con ese token y asegurar que no haya expirado
+        const [users] = await db.query(
+            'SELECT * FROM usuarios WHERE reset_token = ? AND reset_expires > NOW()',
+            [token]
+        );
+
+        if (users.length === 0) {
+            return res.status(400).json({ message: 'El enlace de recuperación es inválido o ha expirado.' });
+        }
+
+        const user = users[0];
+
+        // 2. Encriptar la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // 3. Actualizar la contraseña y (MUY IMPORTANTE) limpiar el token para que no se pueda reusar
+        await db.query(
+            'UPDATE usuarios SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id_usuario = ?',
+            [hashedPassword, user.id_usuario]
+        );
+
+        res.json({ message: 'Tu contraseña ha sido actualizada exitosamente.' });
+    } catch (error) {
+        console.error('Error en resetPassword:', error);
+        res.status(500).json({ message: 'Error interno del servidor al actualizar la contraseña.' });
+    }
+};
+

@@ -38,6 +38,10 @@
                 <img src="../../assest/logo.png" alt="SaludYa Logo">
                 <h2 class="brand-name">SaludYa</h2>
             </div>
+            <div class="nav-item">
+                <div class="nav-icon"><i class="ti ti-stethoscope"></i></div>
+                <span id="userNameDisplay">Cargando...</span>
+            </div>
             <nav class="sidebar-nav">
                 <a href="pacientes_programados.html" class="nav-item active">
                     <div class="nav-icon"><i class="ti ti-stethoscope"></i></div>
@@ -64,10 +68,11 @@
                 <div class="header-card">
                     <h1 class="page-title">Pacientes Programados</h1>
                     <div class="filters">
-                        <button class="filter-btn active">Reportes de Citas</button>
-                        <button class="filter-btn success">Completadas</button>
-                        <button class="filter-btn danger">Canceladas</button>
-                        <a href="cronograma_citas.html" class="filter-btn active" style="text-decoration: none; display: inline-flex; align-items: center;">Cronograma</a>
+                        <button class="filter-btn active" data-status="todas">Reportes de Citas</button>
+                        <button class="filter-btn success" data-status="asistio">Completadas</button>
+                        <button class="filter-btn danger" data-status="cancelada">Canceladas</button>
+                        <a href="cronograma_citas.html" class="filter-btn active"
+                            style="text-decoration: none; display: inline-flex; align-items: center;">Cronograma</a>
                     </div>
                 </div>
             </div>
@@ -83,32 +88,8 @@
                             <th>Estado</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>27/03/2026<br><small>12:20pm</small></td>
-                            <td>Psicologo</td>
-                            <td>Eddison</td>
-                            <td>Diagnostico</td>
-                            <td><span class="status-badge status-confirmada"
-                                    style="width: 100%; box-sizing: border-box;">Asistio</span></td>
-                        </tr>
-                        <tr class="row-alt">
-                            <td>28/03/2026<br><small>01:20pm</small></td>
-                            <td>Psiquiatra</td>
-                            <td>Nelson</td>
-                            <td>Tratamiento trastorno mental</td>
-                            <td><span class="status-badge status-confirmada"
-                                    style="width: 100%; box-sizing: border-box;">Asistio</span></td>
-                        </tr>
-                        <tr>
-                            <td>19/04/2026<br><small>01:20pm</small></td>
-                            <td>Psicologa Infantil</td>
-                            <td>Dra. María López</td>
-                            <td>Diagnostico</td>
-                            <td><span class="status-badge status-pendiente"
-                                    style="width: 100%; box-sizing: border-box; background-color: #f39c12;">En
-                                    curso</span></td>
-                        </tr>
+                    <tbody id="citas-body">
+
                     </tbody>
                 </table>
             </div>
@@ -118,6 +99,22 @@
     <!-- Scripts -->
     <script src="../../js/alerts.js"></script>
     <script src="../../js/script.js"></script>
-</body>
+    <script src="../../js/citas_store.js"></script>
+    <script src="../../js/pacientes_programados.js"></script>
 
+        <!-- Modal for changing appointment state -->
+        <div id="estado-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:20000; pointer-events:auto;">
+            <div class="modal-content" style="background:#fff;padding:20px;border-radius:8px;max-width:400px;width:90%; position:relative; z-index:20001;">
+                <h3>Cambiar estado de la cita</h3>
+                <button class="modal-btn" data-estado="en curso" style="margin:5px;">En curso</button>
+                <button class="modal-btn" data-estado="cancelada" style="margin:5px;">Cancelada</button>
+                <button class="modal-btn" data-estado="reprogramada" style="margin:5px;">Reprogramada</button>
+                <button class="modal-btn" data-estado="asistio" style="margin:5px;">Asistió</button>
+                <br/><br/>
+                <button id="modal-cerrar" style="margin-top:10px;">Cerrar</button>
+            </div>
+        </div>
+
+
+</body>
 </html>

@@ -6,12 +6,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const coloresEstado = {
+        programada: { bg: '#28a745', border: '#28a745' },
+        'en curso': { bg: '#007bff', border: '#007bff' },
+        reprogramada: { bg: '#ffc107', border: '#e0a800' },
+        cancelada: { bg: '#dc3545', border: '#dc3545' },
+        asistio: { bg: '#28a745', border: '#28a745' }
+    };
+
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        initialDate: '2026-04-01',
-        locale: 'en',
+        initialView: 'timeGridWeek',
+        slotMinTime: '08:00:00',
+        slotMaxTime: '17:00:00',
+        businessHours: {
+            start: '08:00',
+            end: '17:00',
+            daysOfWeek: [1, 2, 3, 4, 5]
+        },
+        locale: 'es',
         fixedWeekCount: true,
-        firstDay: 0,
+        firstDay: 1,
         navLinks: false,
         selectable: false,
         editable: false,
@@ -29,14 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             day: 'day',
             list: 'list'
         },
-        events: [
-            { title: 'All Day Event', start: '2026-04-01', backgroundColor: '#4a90e2', borderColor: '#4a90e2' },
-            { title: 'Long Event', start: '2026-04-07', end: '2026-04-09', backgroundColor: '#4a90e2', borderColor: '#4a90e2' },
-            { title: 'Repeating Event', start: '2026-04-09T10:00:00', backgroundColor: '#4a90e2', borderColor: '#4a90e2' },
-            { title: 'Conference', start: '2026-04-27', backgroundColor: '#4a90e2', borderColor: '#4a90e2' },
-            { title: 'Birthday Party', start: '2026-04-29', backgroundColor: '#4a90e2', borderColor: '#4a90e2' },
-            { title: 'Click for Google', start: '2026-04-27T10:30:00', backgroundColor: '#4a90e2', borderColor: '#4a90e2' }
-        ],
+        events: [],
         eventDisplay: 'block',
         eventContent: (arg) => {
             const wrapper = document.createElement('div');
@@ -53,7 +60,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     calendar.render();
 
+    const cargarCitas = async () => {
+        try {
+            const citas = await CitasStore.fetchAll();
+            const eventosCalendario = citas.map((cita) => {
+                const colores = coloresEstado[String(cita.estado || '').toLowerCase()] || { bg: '#6c757d', border: '#6c757d' };
+                const tituloEspecialidad = cita.especialidad || cita.motivo || 'Sin especialidad';
+                const tituloPaciente = cita.paciente ? ` - ${cita.paciente}` : '';
+
+                return {
+                    id: cita.id_cita,
+                    title: `${tituloEspecialidad}${tituloPaciente} - ${String(cita.estado || 'programada').toUpperCase()}`,
+                    start: cita.fecha_hora,
+                    end: new Date(new Date(cita.fecha_hora).getTime() + 30 * 60 * 1000).toISOString(),
+                    allDay: false,
+                    backgroundColor: colores.bg,
+                    borderColor: colores.border,
+                    textColor: String(cita.estado || '').toLowerCase() === 'cancelada' ? '#000' : '#fff'
+                };
+            });
+
+            calendar.removeAllEvents();
+            calendar.addEventSource(eventosCalendario);
+        } catch (error) {
+            console.error('Error al cargar las citas:', error);
+        }
+    };
+
     if (reportBtn) {
         reportBtn.addEventListener('click', () => {});
     }
+
+    cargarCitas();
+    CitasStore.subscribe(cargarCitas);
+    window.addEventListener('focus', cargarCitas);
 });

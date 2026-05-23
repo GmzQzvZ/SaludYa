@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     AlertSystem.success('Envio de recuperación de contraseña exitoso', 'Revisa tu correo de recuperación de contraseña para acceder al sistema', () => {
                         localStorage.clear();
-                        window.location.href = 'login.html';
+                            window.location.assign('login.html');
                     });
                 } else {
                     AlertSystem.error('Error', data.message);

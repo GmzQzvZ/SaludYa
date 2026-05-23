@@ -10,5 +10,9 @@ router.post('/login', authController.login);
 
 // --- NUEVA RUTA: OLVIDAR CONTRASEÑA ---
 router.post('/forgot-password', authController.forgotPassword);
+
+// --- NUEVA RUTA: CAMBIAR CONTRASEÑA ---
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;
 

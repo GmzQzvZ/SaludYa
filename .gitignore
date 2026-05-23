@@ -1,3 +1,4 @@
 node_modules/
+.qodo
 .env
 seed_medicp.js

@@ -13,6 +13,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // 2. Rutas de la API (Backend)
 app.use('/api/auth', require('./src/routes/authRoutes'));
+app.use('/api/citas', require('./src/routes/citasRoutes'));
 
 // 3. Ruta Principal (Frontend) - Cuando entres a localhost:3000 cargará el login
 app.get('/', (req, res) => {

@@ -75,10 +75,8 @@
                             <div class="calendar-month-year" id="calendar-month-year">abril de 2026 <i
                                     class="ti ti-caret-down"></i></div>
                             <div class="calendar-nav-buttons">
-                                <button id="prev-month" class="calendar-btn"><i
-                                        class="ti ti-arrow-up"></i></button>
-                                <button id="next-month" class="calendar-btn"><i
-                                        class="ti ti-arrow-down"></i></button>
+                                <button id="prev-month" class="calendar-btn"><i class="ti ti-arrow-up"></i></button>
+                                <button id="next-month" class="calendar-btn"><i class="ti ti-arrow-down"></i></button>
                             </div>
                         </div>
                         <div class="calendar-weekdays">
@@ -114,38 +112,17 @@
                             <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>Dr. Eddison</td>
-                            <td>28/04/2026<br><small>12:30pm</small></td>
-                            <td>Dirección 1</td>
-                            <td>Psicología</td>
-                            <td class="action-cell"><button class="btn-seleccionar">Seleccionar</button></td>
-                        </tr>
-                        <tr>
-                            <td>Dr. Nelson</td>
-                            <td>28/04/2026<br><small>01:00pm</small></td>
-                            <td>Dirección 2</td>
-                            <td>Psiquiatría</td>
-                            <td class="action-cell"><button class="btn-seleccionar">Seleccionar</button></td>
-                        </tr>
-                        <tr>
-                            <td>Dra. María López</td>
-                            <td>28/04/2026<br><small>01:30pm</small></td>
-                            <td>Dirección 3</td>
-                            <td>Psicología Infantil</td>
-                            <td class="action-cell"><button class="btn-seleccionar">Seleccionar</button></td>
-                        </tr>
+                    <tbody id="citas-tbody">
+                        <!-- Las citas de 8am a 5pm se generarán aquí automáticamente con JS -->
                     </tbody>
                 </table>
             </div>
 
-        </main>
-    </div>
 
-    <script src="../../js/alerts.js"></script>
-    <script src="../../js/script.js"></script>
-    <script src="../../js/solicitar_cita.js"></script>
+            <script src="../../js/alerts.js"></script>
+            <script src="../../js/script.js"></script>
+            <script src="../../js/citas_store.js"></script>
+            <script src="../../js/solicitar_cita.js"></script>
 </body>
 
 </html>

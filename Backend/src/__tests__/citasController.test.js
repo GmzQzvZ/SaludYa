@@ -155,7 +155,7 @@ describe('citasController', () => {
   });
 
   test('actualizarEstado persiste un estado válido', async () => {
-    db.query.mockResolvedValueOnce([{}]);
+    db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
     const req = { params: { id_cita: 'c-1' }, body: { nuevoEstado: 'cancelada' } };
     const res = createRes();
 

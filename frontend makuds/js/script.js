@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const backend = window.MockBackend;
     const authForm = document.getElementById('authForm');
     if (authForm) {
         authForm.addEventListener('submit', async (e) => {
@@ -14,37 +15,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const expectedRole = selectedRole === 'afiliado' ? 'paciente' : 'especialista';
 
                 try {
-                    const response = await fetch('http://localhost:3000/api/auth/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, password })
-                    });
+                    const data = backend.api.login({ email, password });
+                    const userRole = data.usuario?.rol || 'paciente';
 
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        const userRole = data.usuario?.rol || 'paciente';
-
-                        if (userRole !== expectedRole) {
-                            AlertSystem.error('El rol seleccionado no coincide con tu cuenta');
-                            return;
-                        }
-
-                        AlertSystem.success('Inicio de sesión exitoso', 'Bienvenido a SaludYa', () => {
-                            // Guardar el Token en el navegador para usarlo después
-                            localStorage.setItem('token', data.token);
-                            // Guardar los datos del usuario
-                            localStorage.setItem('usuario', JSON.stringify(data.usuario));
-                            const redirectUrl = userRole === 'especialista'
-                                ? 'views/Doctor/cronograma_citas.html'
-                                : 'views/Patient/citas.html';
-                            window.location.href = redirectUrl;
-                        });
-                    } else {
-                        AlertSystem.error('Error: ' + data.message);
+                    if (userRole !== expectedRole) {
+                        AlertSystem.error('El rol seleccionado no coincide con tu cuenta');
+                        return;
                     }
+
+                    AlertSystem.success('Inicio de sesión exitoso', 'Bienvenido a SaludYa', () => {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                        const redirectUrl = userRole === 'especialista'
+                            ? 'views/Doctor/cronograma_citas.html'
+                            : 'views/Patient/citas.html';
+                        window.location.href = redirectUrl;
+                    });
                 } catch (error) {
-                    AlertSystem.error('Error: al conectar con el servidor.');
+                    AlertSystem.error('Error: ' + error.message);
                 }
 
             } else {
@@ -60,28 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
-                    const response = await fetch('http://localhost:3000/api/auth/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            nombre: nombre,
-                            email: email,
-                            password: password,
-                            rol: 'paciente' // Rol por defecto
-                        })
+                    backend.api.register({ nombre, email, password, rol: 'paciente' });
+                    AlertSystem.success('¡Cuenta creada exitosamente!', 'Ahora puedes iniciar sesión.', () => {
+                        window.location.href = 'login.html';
                     });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        AlertSystem.success('¡Cuenta creada exitosamente!', 'Ahora puedes iniciar sesión.', () => {
-                            window.location.href = 'login.html'; // Redirige a la pantalla de login
-                        });
-                    } else {
-                        AlertSystem.error('Error: ' + data.message);
-                    }
                 } catch (error) {
-                    AlertSystem.error('Error al conectar con el servidor.');
+                    AlertSystem.error('Error: ' + error.message);
                 }
             }
         });
@@ -99,25 +71,15 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.textContent = 'Enviando...';
 
-            try {
-                const response = await fetch('http://localhost:3000/api/auth/forgot-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    AlertSystem.success('Envio de recuperación de contraseña exitoso', 'Revisa tu correo de recuperación de contraseña para acceder al sistema', () => {
-                        localStorage.clear();
-                            window.location.assign('login.html');
+                try {
+                    backend.api.forgotPassword({ email });
+                    const resetToken = Object.keys(JSON.parse(localStorage.getItem('saludya:mock:recovery') || '{}')).pop();
+                    AlertSystem.success('Envío de recuperación de contraseña exitoso', `Usa este token local para continuar: ${resetToken}`, () => {
+                        window.location.assign(`cambio_contrasena.html?token=${encodeURIComponent(resetToken)}`);
                     });
-                } else {
-                    AlertSystem.error('Error', data.message);
-                }
-            } catch (error) {
-                AlertSystem.error('Error: al conectar con el servidor.');
-            } finally {
+                } catch (error) {
+                    AlertSystem.error('Error', error.message);
+                } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'ENVIAR ENLACE';
             }
@@ -192,26 +154,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // 3. Enviar la petición al nuevo Endpoint
-                const response = await fetch('http://localhost:3000/api/auth/reset-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token, newPassword })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
+                try {
+                    backend.api.resetPassword({ token, newPassword });
                     // Limpiar la URL por seguridad (quitar el token visible)
                     window.history.replaceState({}, document.title, window.location.pathname);
 
                     AlertSystem.success('¡Éxito!', 'Tu contraseña se ha actualizado correctamente.', () => {
                         window.location.href = 'login.html'; // Redirigir al login
                     });
-                } else {
-                    AlertSystem.error('Error', data.message);
+                } catch (error) {
+                    AlertSystem.error('Error', error.message);
                 }
-            } catch (error) {
-                AlertSystem.error('Error', 'Problema al conectar con el servidor.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Confirmar';

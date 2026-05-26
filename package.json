@@ -1,0 +1,26 @@
+{
+  "name": "saludya",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de citas médicas",
+  "main": "Backend/index.js",
+  "scripts": {
+    "test": "jest --runInBand --passWithNoTests",
+    "start": "node Backend/index.js",
+    "dev": "nodemon Backend/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.22.3",
+    "nodemailer": "^6.9.7",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "nodemon": "^3.1.14"
+  }
+}

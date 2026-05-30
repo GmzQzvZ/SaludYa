@@ -10,7 +10,7 @@ exports.register = async (req, res) => {
     try {
         const { nombre, email, password, rol } = req.body;
 
-        const [users] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+        const { rows: users } = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
         if (users.length > 0) {
             return res.status(400).json({ message: 'El usuario ya existe con este email.' });
         }
@@ -20,7 +20,7 @@ exports.register = async (req, res) => {
 
         const id_usuario = uuidv4();
 
-        const query = 'INSERT INTO usuarios (id_usuario, nombre, email, password, rol) VALUES (?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO usuarios (id_usuario, nombre, email, password, rol) VALUES ($1, $2, $3, $4, $5)';
         await db.query(query, [id_usuario, nombre, email, hashedPassword, rol || 'paciente']);
 
         // --- INICIO ENVÍO DE CORREO DE BIENVENIDA ---
@@ -53,7 +53,7 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const [users] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+        const { rows: users } = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
         if (users.length === 0) {
             return res.status(401).json({ message: 'Credenciales inválidas.' });
         }
@@ -91,7 +91,7 @@ exports.login = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const [users] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+        const { rows: users } = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
 
         if (users.length === 0) {
             return res.status(404).json({ message: 'El correo no está registrado.' });
@@ -102,7 +102,7 @@ exports.forgotPassword = async (req, res) => {
         const expires = new Date(Date.now() + 3600000); // El token expira en 1 hora
 
         // Guardar token y expiración en la DB
-        await db.query('UPDATE usuarios SET reset_token = ?, reset_expires = ? WHERE email = ?', [token, expires, email]);
+        await db.query('UPDATE usuarios SET reset_token = $1, reset_expires = $2 WHERE email = $3', [token, expires, email]);
 
         const resetLink = `http://localhost:3000/cambio_contrasena.html?token=${token}`;
 
@@ -136,8 +136,8 @@ exports.resetPassword = async (req, res) => {
         }
 
         // 1. Buscar al usuario con ese token y asegurar que no haya expirado
-        const [users] = await db.query(
-            'SELECT * FROM usuarios WHERE reset_token = ? AND reset_expires > NOW()',
+        const { rows: users } = await db.query(
+            'SELECT * FROM usuarios WHERE reset_token = $1 AND reset_expires > NOW()',
             [token]
         );
 
@@ -153,7 +153,7 @@ exports.resetPassword = async (req, res) => {
 
         // 3. Actualizar la contraseña y (MUY IMPORTANTE) limpiar el token para que no se pueda reusar
         await db.query(
-            'UPDATE usuarios SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id_usuario = ?',
+            'UPDATE usuarios SET password = $1, reset_token = NULL, reset_expires = NULL WHERE id_usuario = $2',
             [hashedPassword, user.id_usuario]
         );
 
@@ -168,8 +168,8 @@ exports.resetPassword = async (req, res) => {
 exports.getProfile = async (req, res) => {
     try {
         const id_usuario = req.usuario.id;
-        const [users] = await db.query(
-            'SELECT nombre, email, numero_contacto, edad, fecha_nacimiento, direccion FROM usuarios WHERE id_usuario = ?',
+        const { rows: users } = await db.query(
+            'SELECT nombre, email, numero_contacto, edad, fecha_nacimiento, direccion FROM usuarios WHERE id_usuario = $1',
             [id_usuario]
         );
 
@@ -192,8 +192,8 @@ exports.updateProfile = async (req, res) => {
 
         const query = `
             UPDATE usuarios 
-            SET nombre = ?, email = ?, numero_contacto = ?, edad = ?, fecha_nacimiento = ?, direccion = ?
-            WHERE id_usuario = ?
+            SET nombre = $1, email = $2, numero_contacto = $3, edad = $4, fecha_nacimiento = $5, direccion = $6
+            WHERE id_usuario = $7
         `;
         
         // Asignamos NULL si no vienen los datos para evitar errores si el string viene vacío

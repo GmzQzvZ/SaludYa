@@ -48,7 +48,7 @@ describe('authController', () => {
   });
 
   test('register rechaza un usuario existente', async () => {
-    db.query.mockResolvedValueOnce([[{ email: 'a@a.com' }]]);
+    db.query.mockResolvedValueOnce({ rows: [{ email: 'a@a.com' }] });
 
     const req = { body: { nombre: 'Ana', email: 'a@a.com', password: '123', rol: 'paciente' } };
     const res = createRes();
@@ -63,8 +63,8 @@ describe('authController', () => {
 
   test('register crea el usuario y envía correo', async () => {
     db.query
-      .mockResolvedValueOnce([[]])
-      .mockResolvedValueOnce([{}]);
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
     bcrypt.genSalt.mockResolvedValue('salt');
     bcrypt.hash.mockResolvedValue('hashed');
     uuidv4.mockReturnValue('uuid-1');
@@ -94,8 +94,8 @@ describe('authController', () => {
 
   test('register continúa aunque falle el correo de bienvenida', async () => {
     db.query
-      .mockResolvedValueOnce([[]])
-      .mockResolvedValueOnce([{}]);
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
     bcrypt.genSalt.mockResolvedValue('salt');
     bcrypt.hash.mockResolvedValue('hashed');
     uuidv4.mockReturnValue('uuid-1');
@@ -117,12 +117,12 @@ describe('authController', () => {
   });
 
   test('login devuelve token con credenciales válidas', async () => {
-    db.query.mockResolvedValueOnce([[{
+    db.query.mockResolvedValueOnce({ rows: [{
       id_usuario: 'u-1',
       nombre: 'Ana',
       rol: 'paciente',
       password: 'hashed'
-    }]]);
+    }] });
     bcrypt.compare.mockResolvedValue(true);
     jwt.sign.mockImplementation((payload, secret, options, cb) => cb(null, 'token-abc'));
 
@@ -150,7 +150,7 @@ describe('authController', () => {
   });
 
   test('login rechaza cuando no existe el usuario', async () => {
-    db.query.mockResolvedValueOnce([[]]);
+    db.query.mockResolvedValueOnce({ rows: [] });
 
     const req = { body: { email: 'missing@test.com', password: '123' } };
     const res = createRes();
@@ -162,12 +162,12 @@ describe('authController', () => {
   });
 
   test('login rechaza credenciales incorrectas', async () => {
-    db.query.mockResolvedValueOnce([[{
+    db.query.mockResolvedValueOnce({ rows: [{
       id_usuario: 'u-1',
       nombre: 'Ana',
       rol: 'paciente',
       password: 'hashed'
-    }]]);
+    }] });
     bcrypt.compare.mockResolvedValue(false);
 
     const req = { body: { email: 'ana@test.com', password: 'wrong' } };
@@ -181,8 +181,8 @@ describe('authController', () => {
 
   test('forgotPassword actualiza el token de reseteo y envía correo', async () => {
     db.query
-      .mockResolvedValueOnce([[{ nombre: 'Ana' }]])
-      .mockResolvedValueOnce([{}]);
+      .mockResolvedValueOnce({ rows: [{ nombre: 'Ana' }] })
+      .mockResolvedValueOnce({ rows: [] });
     uuidv4.mockReturnValue('reset-token');
     transporter.sendMail.mockResolvedValue();
 
@@ -192,7 +192,7 @@ describe('authController', () => {
     await authController.forgotPassword(req, res);
 
     expect(db.query).toHaveBeenCalledWith(
-      'UPDATE usuarios SET reset_token = ?, reset_expires = ? WHERE email = ?',
+      'UPDATE usuarios SET reset_token = $1, reset_expires = $2 WHERE email = $3',
       ['reset-token', expect.any(Date), 'ana@test.com']
     );
     expect(transporter.sendMail).toHaveBeenCalled();
@@ -206,7 +206,7 @@ describe('authController', () => {
   });
 
   test('forgotPassword rechaza correos no registrados', async () => {
-    db.query.mockResolvedValueOnce([[]]);
+    db.query.mockResolvedValueOnce({ rows: [] });
 
     const req = { body: { email: 'missing@test.com' } };
     const res = createRes();
@@ -221,12 +221,12 @@ describe('authController', () => {
 
   test('resetPassword valida datos y actualiza la contraseña', async () => {
     db.query
-      .mockResolvedValueOnce([[{
+      .mockResolvedValueOnce({ rows: [{
         id_usuario: 'u-1',
         password: 'old',
         nombre: 'Ana'
-      }]])
-      .mockResolvedValueOnce([{}]);
+      }] })
+      .mockResolvedValueOnce({ rows: [] });
     bcrypt.genSalt.mockResolvedValue('salt');
     bcrypt.hash.mockResolvedValue('new-hash');
 
@@ -236,12 +236,12 @@ describe('authController', () => {
     await authController.resetPassword(req, res);
 
     expect(db.query).toHaveBeenCalledWith(
-      'SELECT * FROM usuarios WHERE reset_token = ? AND reset_expires > NOW()',
+      'SELECT * FROM usuarios WHERE reset_token = $1 AND reset_expires > NOW()',
       ['reset-token']
     );
     expect(bcrypt.hash).toHaveBeenCalledWith('nueva', 'salt');
     expect(db.query).toHaveBeenCalledWith(
-      'UPDATE usuarios SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id_usuario = ?',
+      'UPDATE usuarios SET password = $1, reset_token = NULL, reset_expires = NULL WHERE id_usuario = $2',
       ['new-hash', 'u-1']
     );
     expect(res.json).toHaveBeenCalledWith({
@@ -262,7 +262,7 @@ describe('authController', () => {
   });
 
   test('resetPassword rechaza tokens inválidos', async () => {
-    db.query.mockResolvedValueOnce([[]]);
+    db.query.mockResolvedValueOnce({ rows: [] });
     const req = { body: { token: 'bad-token', newPassword: 'nueva' } };
     const res = createRes();
 

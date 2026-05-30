@@ -36,7 +36,7 @@ describe('citasController', () => {
 
   test('crearCita detecta conflicto de horario', async () => {
     db.query
-      .mockResolvedValueOnce([[{ id_cita: 'c-1' }]]);
+      .mockResolvedValueOnce({ rows: [{ id_cita: 'c-1' }] });
 
     const req = {
       body: { fecha_hora: '2026-05-23 08:00:00', motivo: 'General' },
@@ -54,8 +54,8 @@ describe('citasController', () => {
 
   test('crearCita inserta una cita programada', async () => {
     db.query
-      .mockResolvedValueOnce([[]])
-      .mockResolvedValueOnce([{}]);
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
     uuidv4.mockReturnValue('cita-1');
 
     const req = {
@@ -71,7 +71,7 @@ describe('citasController', () => {
       ['2026-05-23 08:00:00', 'General']
     );
     expect(db.query).toHaveBeenCalledWith(
-      'INSERT INTO citas (id_cita, id_usuario, fecha_hora, motivo, estado) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO citas (id_cita, id_usuario, fecha_hora, motivo, estado) VALUES ($1, $2, $3, $4, $5)',
       ['cita-1', 'u-1', '2026-05-23 08:00:00', 'General', 'programada']
     );
     expect(res.status).toHaveBeenCalledWith(201);
@@ -99,7 +99,7 @@ describe('citasController', () => {
   });
 
   test('obtenerTodasCitas retorna los resultados', async () => {
-    db.query.mockResolvedValueOnce([[{ id_cita: 'c-1' }]]);
+    db.query.mockResolvedValueOnce({ rows: [{ id_cita: 'c-1' }] });
     const req = {};
     const res = createRes();
 
@@ -120,7 +120,7 @@ describe('citasController', () => {
   });
 
   test('obtenerMisCitas usa el id del usuario autenticado', async () => {
-    db.query.mockResolvedValueOnce([[{ id_cita: 'c-1' }]]);
+    db.query.mockResolvedValueOnce({ rows: [{ id_cita: 'c-1' }] });
     const req = { usuario: { id: 'u-1' } };
     const res = createRes();
 
@@ -155,15 +155,15 @@ describe('citasController', () => {
   });
 
   test('actualizarEstado persiste un estado válido', async () => {
-    db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
-    db.query.mockResolvedValueOnce([[{ fecha_hora: '2026-05-23 08:00:00', motivo: 'General', nombre: 'Test User', email: 'test@example.com' }]]);
+    db.query.mockResolvedValueOnce({ rows: [] });
+    db.query.mockResolvedValueOnce({ rows: [{ fecha_hora: '2026-05-23 08:00:00', motivo: 'General', nombre: 'Test User', email: 'test@example.com' }] });
     const req = { params: { id_cita: 'c-1' }, body: { nuevoEstado: 'cancelada' } };
     const res = createRes();
 
     await citasController.actualizarEstado(req, res);
 
     expect(db.query).toHaveBeenCalledWith(
-      'UPDATE citas SET estado = ? WHERE id_cita = ?',
+      'UPDATE citas SET estado = $1 WHERE id_cita = $2',
       ['cancelada', 'c-1']
     );
     expect(res.json).toHaveBeenCalledWith({ message: 'Estado actualizado y correo enviado' });

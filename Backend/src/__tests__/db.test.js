@@ -1,12 +1,16 @@
-jest.mock('mysql2/promise', () => ({
-  createPool: jest.fn()
+jest.mock('pg', () => ({
+  Pool: jest.fn().mockImplementation(() => ({
+    connect: jest.fn().mockResolvedValue({
+      release: jest.fn()
+    })
+  }))
 }));
 
 jest.mock('dotenv', () => ({
   config: jest.fn()
 }));
 
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 
 describe('db config', () => {
   beforeEach(() => {
@@ -18,22 +22,23 @@ describe('db config', () => {
   });
 
   test('crea el pool con la configuración esperada', async () => {
-    const release = jest.fn();
-    mysql.createPool.mockReturnValue({
-      getConnection: jest.fn().mockResolvedValue({ release })
-    });
+    const connect = jest.fn().mockResolvedValue({ release: jest.fn() });
+    Pool.mockImplementation(() => ({
+      connect
+    }));
 
     delete require.cache[require.resolve('../config/db')];
     require('../config/db');
 
-    expect(mysql.createPool).toHaveBeenCalledWith({
+    expect(Pool).toHaveBeenCalledWith({
       host: 'localhost',
+      port: 5432,
       user: 'root',
       password: 'pass',
       database: 'saludya',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+      ssl: {
+        rejectUnauthorized: false
+      }
     });
   });
 });

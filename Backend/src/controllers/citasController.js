@@ -23,24 +23,24 @@ exports.crearCita = async (req, res) => {
         const conflictQuery = `
             SELECT id_cita
             FROM citas
-            WHERE fecha_hora = ?
-              AND LOWER(TRIM(motivo)) = LOWER(TRIM(?))
+            WHERE fecha_hora = $1
+              AND LOWER(TRIM(motivo)) = LOWER(TRIM($2))
               AND estado <> 'cancelada'
             LIMIT 1
         `;
-        const [conflict] = await db.query(conflictQuery, [fecha_hora, motivo]);
+        const { rows: conflict } = await db.query(conflictQuery, [fecha_hora, motivo]);
         if (conflict.length > 0) {
             return res.status(409).json({ message: 'Ese horario ya está ocupado para esa especialidad.' });
         }
         // Definir la query de inserción
-        const query = 'INSERT INTO citas (id_cita, id_usuario, fecha_hora, motivo, estado) VALUES (?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO citas (id_cita, id_usuario, fecha_hora, motivo, estado) VALUES ($1, $2, $3, $4, $5)';
         // Insertar la nueva cita
         await db.query(query, [id_cita, id_usuario, fecha_hora, motivo, 'programada']);
 
 
         try {
             // 1. Obtener el correo y nombre del paciente usando su id_usuario
-            const [users] = await db.query('SELECT nombre, email FROM usuarios WHERE id_usuario = ?', [id_usuario]);
+            const { rows: users } = await db.query('SELECT nombre, email FROM usuarios WHERE id_usuario = $1', [id_usuario]);
 
             if (users.length > 0) {
                 const paciente = users[0];
@@ -89,7 +89,7 @@ exports.obtenerTodasCitas = async (req, res) => {
             JOIN usuarios u ON c.id_usuario = u.id_usuario
             ORDER BY c.fecha_hora DESC
         `;
-        const [citas] = await db.query(query);
+        const { rows: citas } = await db.query(query);
         res.json(citas);
     } catch (error) {
         console.error('Error al obtener todas las citas:', error);
@@ -104,10 +104,10 @@ exports.obtenerMisCitas = async (req, res) => {
         const query = `
             SELECT id_cita, fecha_hora, motivo, estado
             FROM citas
-            WHERE id_usuario = ?
+            WHERE id_usuario = $1
             ORDER BY fecha_hora DESC
         `;
-        const [citas] = await db.query(query, [id_usuario]);
+        const { rows: citas } = await db.query(query, [id_usuario]);
         res.json(citas);
     } catch (error) {
         console.error('Error al obtener tus citas:', error);
@@ -126,7 +126,7 @@ exports.actualizarEstado = async (req, res) => {
         }
 
         // 1. Actualizar el estado en la base de datos
-        const query = 'UPDATE citas SET estado = ? WHERE id_cita = ?';
+        const query = 'UPDATE citas SET estado = $1 WHERE id_cita = $2';
         await db.query(query, [nuevoEstado, id_cita]);
 
         // 2. Obtener los datos de la cita y del paciente para el correo
@@ -134,9 +134,9 @@ exports.actualizarEstado = async (req, res) => {
             SELECT c.fecha_hora, c.motivo, u.nombre, u.email 
             FROM citas c 
             JOIN usuarios u ON c.id_usuario = u.id_usuario 
-            WHERE c.id_cita = ?
+            WHERE c.id_cita = $1
         `;
-        const [citaData] = await db.query(citaQuery, [id_cita]);
+        const { rows: citaData } = await db.query(citaQuery, [id_cita]);
 
         // 3. Enviar el correo si se encontraron los datos
         if (citaData.length > 0) {

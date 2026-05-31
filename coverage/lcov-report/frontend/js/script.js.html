@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">94.33% </span>
+                <span class="strong">95.09% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>100/106</span>
+                <span class='fraction'>97/102</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.92% </span>
+                <span class="strong">84.44% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>47/56</span>
+                <span class='fraction'>38/45</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">94.33% </span>
+                <span class="strong">95.09% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>100/106</span>
+                <span class='fraction'>97/102</span>
             </div>
         
             
@@ -274,17 +274,7 @@
 <a name='L209'></a><a href='#L209'>209</a>
 <a name='L210'></a><a href='#L210'>210</a>
 <a name='L211'></a><a href='#L211'>211</a>
-<a name='L212'></a><a href='#L212'>212</a>
-<a name='L213'></a><a href='#L213'>213</a>
-<a name='L214'></a><a href='#L214'>214</a>
-<a name='L215'></a><a href='#L215'>215</a>
-<a name='L216'></a><a href='#L216'>216</a>
-<a name='L217'></a><a href='#L217'>217</a>
-<a name='L218'></a><a href='#L218'>218</a>
-<a name='L219'></a><a href='#L219'>219</a>
-<a name='L220'></a><a href='#L220'>220</a>
-<a name='L221'></a><a href='#L221'>221</a>
-<a name='L222'></a><a href='#L222'>222</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L212'></a><a href='#L212'>212</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-yes">8x</span>
@@ -422,22 +412,12 @@
 <span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">15x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -543,8 +523,8 @@
                             // Guardar los datos del usuario
                             localStorage.setItem('usuario', JSON.stringify(data.usuario));
                             const redirectUrl = userRole === 'especialista'
-                                ? '/views/Doctor/cronograma_citas.html'
-                                : <span class="branch-1 cbranch-no" title="branch not covered" >'/views/Patient/citas.html';</span>
+                                ? 'views/Doctor/cronograma_citas.html'
+                                : <span class="branch-1 cbranch-no" title="branch not covered" >'views/Patient/citas.html';</span>
                             window.location.href = redirectUrl;
                         });
                     } else {
@@ -631,34 +611,24 @@
         });
     }
 &nbsp;
-    // --- SEGURIDAD: CONTROL DE SESIÓN (FIXED PARA EVITAR LOOP) ---
+    // --- UI GLOBAL ---
     const currentPath = window.location.pathname;
-    const isPublicPage = currentPath.includes('login.html') || 
-                         currentPath.includes('registro.html') || 
-                         currentPath.includes('olvido_contrasena.html') ||
-                         currentPath.includes('cambio_contrasena.html') ||
-                         currentPath === '/';
+    const isPublicPage = currentPath.includes('login.html') ||
+        currentPath.includes('registro.html') ||
+        currentPath.includes('olvido_contrasena.html') ||
+        currentPath.includes('cambio_contrasena.html') ||
+        currentPath === '/';
 &nbsp;
     const usuarioData = localStorage.getItem('usuario');
     const token = localStorage.getItem('token');
 &nbsp;
-    if (!isPublicPage) {
-        // Si es una página privada y no hay token, redirigir
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (!usuarioData || !token) {
-<span class="cstat-no" title="statement not covered" >            window.location.href = '../../login.html';</span>
-<span class="cstat-no" title="statement not covered" >            return;</span>
-        }
-&nbsp;
-        // Mostrar nombre en el sidebar si existe el elemento
-        const nameDisplay = document.getElementById('userNameDisplay');
-        <span class="missing-if-branch" title="else path not taken" >E</span>if (nameDisplay &amp;&amp; usuarioData) {
+    const nameDisplay = document.getElementById('userNameDisplay');
+    if (nameDisplay &amp;&amp; usuarioData) {
+        try {
             const usuario = JSON.parse(usuarioData);
             nameDisplay.textContent = usuario.nombre || <span class="branch-1 cbranch-no" title="branch not covered" >'Usuario';</span>
-        }
-    } else {
-        // Si estamos en login y ya hay sesión, podemos redirigir al dashboard
-        if (usuarioData &amp;&amp; token &amp;&amp; currentPath.includes('login.html')) {
-            window.location.href = 'views/Patient/citas.html';
+        } catch (error) {
+<span class="cstat-no" title="statement not covered" >            nameDisplay.textContent = 'Usuario';</span>
         }
     }
 &nbsp;
@@ -733,7 +703,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-23T21:02:40.946Z
+                at 2026-05-31T02:13:32.697Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

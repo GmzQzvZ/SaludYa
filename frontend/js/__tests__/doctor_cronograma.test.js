@@ -2,6 +2,7 @@ const { loadScript, flushPromises } = require('./testHelpers');
 
 describe('doctor_cronograma.js', () => {
   beforeEach(() => {
+    jest.restoreAllMocks();
     document.body.innerHTML = `
       <div id="calendar"></div>
       <button class="schedule-report-btn"></button>
@@ -18,6 +19,12 @@ describe('doctor_cronograma.js', () => {
       ])),
       subscribe: jest.fn(() => () => {})
     };
+    global.Blob = jest.fn(function(parts, options) {
+      this.parts = parts;
+      this.options = options;
+    });
+    global.URL.createObjectURL = jest.fn(() => 'blob:url');
+    global.URL.revokeObjectURL = jest.fn();
     const calendarApi = {
       render: jest.fn(),
       removeAllEvents: jest.fn(),
@@ -86,5 +93,51 @@ describe('doctor_cronograma.js', () => {
     expect(rendered.domNodes[0].querySelector('.fc-event-title').textContent).toBe(
       'General - Ana - CANCELADA'
     );
+  });
+
+  test('usa colores por defecto cuando el estado es desconocido', async () => {
+    window.CitasStore.fetchAll.mockResolvedValueOnce([{
+      id_cita: 'c-2',
+      especialidad: 'Dermatologia',
+      paciente: '',
+      estado: 'pendiente-raro',
+      fecha_hora: '2026-05-23T10:00:00.000Z'
+    }]);
+
+    loadScript('../doctor_cronograma.js');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    await flushPromises();
+
+    const calendarApi = window.FullCalendar.Calendar.mock.results[0].value;
+    expect(calendarApi.addEventSource).toHaveBeenCalledWith([
+      expect.objectContaining({
+        backgroundColor: '#6c757d',
+        borderColor: '#6c757d',
+        textColor: '#fff'
+      })
+    ]);
+  });
+
+  test('genera y descarga el reporte CSV', async () => {
+    loadScript('../doctor_cronograma.js');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    await flushPromises();
+
+    document.querySelector('.schedule-report-btn').click();
+    await flushPromises();
+
+    expect(global.Blob).toHaveBeenCalled();
+    expect(global.URL.createObjectURL).toHaveBeenCalled();
+    expect(global.URL.revokeObjectURL).toHaveBeenCalledWith('blob:url');
+  });
+
+  test('no falla si no existe el boton de reporte', async () => {
+    document.body.innerHTML = `<div id="calendar"></div>`;
+
+    loadScript('../doctor_cronograma.js');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    await flushPromises();
+
+    expect(window.CitasStore.subscribe).toHaveBeenCalled();
   });
 });

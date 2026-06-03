@@ -1,14 +1,20 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "frontend/**"
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index"
+      "src": "api/index.js",
+      "config": {
+        "includeFiles": [
+          "../frontend/**"
+        ]
+      },
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }

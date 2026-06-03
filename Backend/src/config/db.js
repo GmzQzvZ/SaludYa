@@ -9,13 +9,15 @@ const pool = new Pool({
     ssl: useSsl ? { rejectUnauthorized: false } : false
 });
 
-pool.connect()
-    .then(client => {
-        console.log('Conexión a Supabase PostgreSQL establecida exitosamente.');
-        client.release();
-    })
-    .catch(err => {
-        console.error('Error al conectar a la base de datos:', err);
-    });
+if (process.env.DATABASE_URL && !process.env.VERCEL) {
+    pool.connect()
+        .then(client => {
+            console.log('Conexión a PostgreSQL verificada exitosamente.');
+            client.release();
+        })
+        .catch(err => {
+            console.error('Error al conectar a la base de datos:', err);
+        });
+}
 
 module.exports = pool;

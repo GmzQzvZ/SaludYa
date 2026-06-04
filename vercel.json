@@ -1,5 +1,5 @@
-<<<<<<< C:/Users/Usuario/Documents/GIt/SaludYa/vercel.json
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "buildCommand": "echo 'No build required'",
   "outputDirectory": ".",
@@ -9,37 +9,14 @@
       "runtime": "nodejs22.x"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
+      "source": "/:path*",
+      "destination": "/api/index.js"
     }
   ]
 }
-=======
-{
-  "version": 2,
-  "buildCommand": "echo 'No build required'",
-  "outputDirectory": ".",
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "frontend/**",
-      "runtime": "nodejs22.x"
-    }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
-    }
-  ]
-}
->>>>>>> C:/Users/Usuario/.windsurf/worktrees/SaludYa/SaludYa-027c67a0/vercel.json

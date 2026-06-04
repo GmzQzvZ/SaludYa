@@ -1,20 +1,20 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "echo \"No build required\"",
   "functions": {
     "api/index.js": {
       "includeFiles": "frontend/**",
       "runtime": "nodejs22.x"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
+      "source": "/:path*",
+      "destination": "/api/index.js"
     }
   ]
 }

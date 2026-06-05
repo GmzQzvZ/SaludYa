@@ -120,7 +120,7 @@ Se mantiene una **Wiki activa en GitHub** con información adicional:
 ---
 
 6. **Proximas Actualizaciones**:
-   - Descargar un reporte de la citas mensual
+   - Descargar un reporte de la citas mensual (paciente)
    - Envio de notificacione y recordatorio de la citas al correo (opcional WhatsApp)
 ---
 Desarrollado con ❤️ para mejorar la gestión de salud.
